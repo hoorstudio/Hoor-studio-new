@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOOR STUDIO — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,300;0,6..96,400&family=Jost:wght@200;300;400;500&family=Italiana&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#08080a; --ink-2:#0f0f12; --ink-3:#161619; --ink-4:#1d1d22;
+  --silver:#a8a8b0; --silver-2:#c8c8d2; --white:#f5f4f0;
+  --accent:#d4af6a; --accent-2:#ead28c;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ink); color:var(--white);
+  font-family:'Jost',sans-serif; font-weight:300;
+  min-height:100vh; padding:40px 20px;
+}
+.wrap{max-width:1100px;margin:0 auto}
+h1{
+  font-family:'Italiana',serif; letter-spacing:.25em; text-indent:.25em;
+  font-size:1.8rem; margin-bottom:6px; color:var(--white);
+}
+.sub{color:var(--silver);font-size:.8rem;letter-spacing:.05em;margin-bottom:36px}
+.card{
+  background:var(--ink-2); border:1px solid rgba(255,255,255,.08);
+  border-radius:10px; padding:28px; margin-bottom:28px;
+}
+.card h2{
+  font-size:.75rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:20px; font-weight:400;
+}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{
+  display:block; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--silver-2); margin-bottom:6px;
+}
+input[type=text],input[type=number],select,textarea{
+  width:100%; background:var(--ink-3); border:1px solid rgba(255,255,255,.1);
+  color:var(--white); padding:11px 12px; border-radius:6px;
+  font-family:'Jost',sans-serif; font-size:.9rem; font-weight:300;
+  margin-bottom:16px; transition:border-color .3s;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field-full{grid-column:1/-1}
+.img-upload{
+  border:1.5px dashed rgba(255,255,255,.15); border-radius:8px;
+  padding:18px; text-align:center; cursor:pointer; margin-bottom:16px;
+  transition:border-color .3s; position:relative;
+}
+.img-upload:hover{border-color:var(--accent)}
+.img-upload input{display:none}
+.img-upload-text{color:var(--silver);font-size:.8rem}
+.preview{
+  width:120px;height:150px;object-fit:cover;border-radius:6px;
+  margin:0 auto 12px; display:none; border:1px solid rgba(255,255,255,.1);
+}
+.btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:var(--ink); border:none; padding:13px 28px; border-radius:6px;
+  font-family:'Jost',sans-serif; font-size:.78rem; letter-spacing:.15em;
+  text-transform:uppercase; font-weight:500; cursor:pointer;
+  transition:transform .3s var(--ease),box-shadow .3s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(212,175,106,.35)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{
+  background:transparent;border:1px solid rgba(255,255,255,.2);color:var(--white);
+}
+.btn-danger{
+  background:transparent;border:1px solid #e05d5d;color:#e05d5d;
+  padding:8px 16px;font-size:.68rem;
+}
+.status{
+  font-size:.8rem;padding:10px 14px;border-radius:6px;margin-bottom:16px;display:none;
+}
+.status.ok{background:rgba(90,200,120,.12);color:#7ed99a;display:block}
+.status.err{background:rgba(224,93,93,.12);color:#f08a8a;display:block}
+.status.loading{background:rgba(212,175,106,.1);color:var(--accent);display:block}
+
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{
+  text-align:left;color:var(--silver);font-size:.68rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.1);
+}
+td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle}
+td img{width:44px;height:56px;object-fit:cover;border-radius:4px}
+.badge-tag{
+  display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;
+  background:rgba(212,175,106,.15);color:var(--accent);
+}
+.actions{display:flex;gap:8px}
+.config-note{
+  background:rgba(212,175,106,.08); border:1px solid rgba(212,175,106,.25);
+  padding:16px 20px; border-radius:8px; font-size:.8rem; color:var(--silver-2);
+  margin-bottom:28px; line-height:1.6;
+}
+.config-note code{color:var(--accent);background:rgba(0,0,0,.3);padding:1px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN SCREEN ═══════════ -->
+<div id="loginScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="max-width:360px;width:100%;background:var(--ink-2);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:40px 32px;text-align:center">
+    <h1 style="margin-bottom:6px">HOOR STUDIO</h1>
+    <div class="sub" style="margin-bottom:30px">ADMIN LOGIN</div>
+    <input type="password" id="loginPassword" placeholder="Enter admin password" style="text-align:center" onkeydown="if(event.key==='Enter') tryLogin()">
+    <div id="loginError" class="status err" style="display:none;margin-bottom:16px"></div>
+    <button class="btn" style="width:100%" onclick="tryLogin()">Login</button>
+  </div>
+</div>
+
+<div id="adminWrap" class="wrap" style="display:none">
+  <h1>HOOR STUDIO</h1>
+  <div class="sub">ADMIN PANEL — PRODUCT MANAGEMENT</div>
+
+  <div class="config-note" id="configNote">
+    ⚠️ Setup baaki hai: is file ke <code>&lt;script&gt;</code> section mein apni
+    <code>SUPABASE_URL</code>, <code>SUPABASE_ANON_KEY</code>, <code>CLOUDINARY_CLOUD_NAME</code>
+    aur <code>CLOUDINARY_UPLOAD_PRESET</code> daal dein.
+  </div>
+
+  <div class="card">
+    <h2 id="formTitle">Add New Product</h2>
+    <div id="statusMsg" class="status"></div>
+
+    <div class="img-upload" onclick="document.getElementById('imgInput').click()">
+      <img id="imgPreview" class="preview">
+      <div class="img-upload-text" id="uploadText">📷 Click to upload product image (Cloudinary)</div>
+      <input type="file" id="imgInput" accept="image/*" onchange="handleImageUpload(event)">
+    </div>
+    <input type="text" id="imageUrlHidden" placeholder="Image URL will appear here after upload" readonly>
+
+    <div class="grid">
+      <div>
+        <label>Product Name</label>
+        <input type="text" id="pName" placeholder="e.g. Noir Velvet Blazer">
+      </div>
+      <div>
+        <label>Category</label>
+        <input type="text" id="pCat" placeholder="e.g. Luxury Line">
+      </div>
+      <div>
+        <label>Price (Rs.)</label>
+        <input type="number" id="pPrice" placeholder="3499">
+      </div>
+      <div>
+        <label>Old Price (optional, for sale)</label>
+        <input type="number" id="pOldPrice" placeholder="4999">
+      </div>
+      <div>
+        <label>Badge (optional)</label>
+        <select id="pBadge">
+          <option value="">None</option>
+          <option value="New">New</option>
+          <option value="Sale">Sale</option>
+          <option value="Hot">Hot</option>
+        </select>
+      </div>
+      <div>
+        <label>Section (where it shows on site)</label>
+        <select id="pSection">
+          <option value="trending">Trending Collection</option>
+          <option value="arrivals-split">New Arrivals (Split)</option>
+          <option value="arrivals-row">New Arrivals (Row)</option>
+          <option value="best">Best Sellers</option>
+        </select>
+      </div>
+    </div>
+
+    <input type="hidden" id="editId">
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button class="btn" id="saveBtn" onclick="saveProduct()">Add Product</button>
+      <button class="btn btn-secondary" id="cancelBtn" onclick="resetForm()" style="display:none">Cancel Edit</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>All Products (<span id="productCount">0</span>)</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Section</th><th>Badge</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="productList">
+          <tr><td colspan="7" style="color:var(--silver)">Loading products...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG — apni details yahan daalein
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://nrgdjaopulupdywtysvg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yZ2RqYW9wdWx1cGR5d3R5c3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzOTk3NzksImV4cCI6MjA5ODk3NTc3OX0.FBJ1vVuwnDA3DLLgiLaLoFqC1SvAAaMlobNXJd4Fzf8';
+const CLOUDINARY_CLOUD_NAME = 'mvnxgukq';
+const CLOUDINARY_UPLOAD_PRESET = 'Hoor studio new'; // unsigned preset
+// ═══════════════════════════════════════════════════════
+
+const configured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && CLOUDINARY_CLOUD_NAME !== 'YOUR_CLOUDINARY_CLOUD_NAME';
+if(configured) document.getElementById('configNote').style.display = 'none';
+
+const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let uploadedImageUrl = '';
+
+function showStatus(msg, type){
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+  if(type !== 'loading') setTimeout(()=>{ el.className='status'; }, 3500);
+}
+
+// ── CLOUDINARY UPLOAD ──────────────────────────────────
+async function handleImageUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!configured){ showStatus('Pehle config (upar) complete karein.', 'err'); return; }
+
+  document.getElementById('uploadText').textContent = 'Uploading...';
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+  try{
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      method: 'POST', body: formData
+    });
+    const data = await res.json();
+    if(data.secure_url){
+      uploadedImageUrl = data.secure_url;
+      document.getElementById('imageUrlHidden').value = uploadedImageUrl;
+      document.getElementById('imgPreview').src = uploadedImageUrl;
+      document.getElementById('imgPreview').style.display = 'block';
+      document.getElementById('uploadText').textContent = '✓ Image uploaded — click to change';
+      showStatus('Image upload ho gayi!', 'ok');
+    } else {
+      throw new Error(data.error?.message || 'Upload failed');
+    }
+  }catch(err){
+    document.getElementById('uploadText').textContent = '📷 Click to upload product image (Cloudinary)';
+    showStatus('Upload fail hua: ' + err.message, 'err');
+  }
+}
+
+// ── SAVE (ADD or UPDATE) ───────────────────────────────
+async function saveProduct(){
+  if(!configured){ showStatus('Pehle config (upar) complete karein.', 'err'); return; }
+
+  const name = document.getElementById('pName').value.trim();
+  const cat = document.getElementById('pCat').value.trim();
+  const price = document.getElementById('pPrice').value;
+  const oldPrice = document.getElementById('pOldPrice').value;
+  const badge = document.getElementById('pBadge').value;
+  const section = document.getElementById('pSection').value;
+  const editId = document.getElementById('editId').value;
+  const imageUrl = uploadedImageUrl || document.getElementById('imageUrlHidden').value;
+
+  if(!name || !cat || !price){ showStatus('Name, Category, aur Price zaroori hain.', 'err'); return; }
+  if(!imageUrl && !editId){ showStatus('Product image upload karein.', 'err'); return; }
+
+  const badgeStyle = badge === 'Sale' ? 'sale' : (badge === 'Hot' ? 'hot' : '');
+
+  const payload = {
+    name, category: cat, section,
+    price: parseFloat(price),
+    old_price: oldPrice ? parseFloat(oldPrice) : null,
+    badge: badge || null,
+    badge_style: badgeStyle || null,
+  };
+  if(imageUrl) payload.image_url = imageUrl;
+
+  showStatus('Saving...', 'loading');
+  let error;
+  if(editId){
+    ({ error } = await sb.from('products').update(payload).eq('id', editId));
+  } else {
+    ({ error } = await sb.from('products').insert(payload));
+  }
+
+  if(error){ showStatus('Error: ' + error.message, 'err'); return; }
+  showStatus(editId ? 'Product update ho gaya!' : 'Product add ho gaya!', 'ok');
+  resetForm();
+  loadProducts();
+}
+
+function resetForm(){
+  document.getElementById('pName').value = '';
+  document.getElementById('pCat').value = '';
+  document.getElementById('pPrice').value = '';
+  document.getElementById('pOldPrice').value = '';
+  document.getElementById('pBadge').value = '';
+  document.getElementById('pSection').value = 'trending';
+  document.getElementById('editId').value = '';
+  document.getElementById('imageUrlHidden').value = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('uploadText').textContent = '📷 Click to upload product image (Cloudinary)';
+  uploadedImageUrl = '';
+  document.getElementById('formTitle').textContent = 'Add New Product';
+  document.getElementById('saveBtn').textContent = 'Add Product';
+  document.getElementById('cancelBtn').style.display = 'none';
+}
+
+// ── EDIT ────────────────────────────────────────────────
+function editProduct(p){
+  document.getElementById('editId').value = p.id;
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pCat').value = p.category;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pOldPrice').value = p.old_price || '';
+  document.getElementById('pBadge').value = p.badge || '';
+  document.getElementById('pSection').value = p.section || 'trending';
+  document.getElementById('imageUrlHidden').value = p.image_url;
+  document.getElementById('imgPreview').src = p.image_url;
+  document.getElementById('imgPreview').style.display = 'block';
+  document.getElementById('uploadText').textContent = '✓ Current image — click to replace';
+  uploadedImageUrl = p.image_url;
+  document.getElementById('formTitle').textContent = 'Edit Product';
+  document.getElementById('saveBtn').textContent = 'Update Product';
+  document.getElementById('cancelBtn').style.display = 'inline-block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── DELETE ──────────────────────────────────────────────
+async function deleteProduct(id, name){
+  if(!confirm(`"${name}" ko delete karna hai?`)) return;
+  const { error } = await sb.from('products').delete().eq('id', id);
+  if(error){ showStatus('Delete error: ' + error.message, 'err'); return; }
+  showStatus('Product delete ho gaya.', 'ok');
+  loadProducts();
+}
+
+// ── LOAD LIST ───────────────────────────────────────────
+async function loadProducts(){
+  if(!configured){
+    document.getElementById('productList').innerHTML = '<tr><td colspan="7" style="color:var(--silver)">Config complete karne ke baad products yahan dikhengi.</td></tr>';
+    return;
+  }
+  const { data, error } = await sb.from('products').select('*').order('created_at', { ascending:false });
+  if(error){
+    document.getElementById('productList').innerHTML = `<tr><td colspan="7" style="color:#f08a8a">Error: ${error.message}</td></tr>`;
+    return;
+  }
+  document.getElementById('productCount').textContent = data.length;
+  if(data.length === 0){
+    document.getElementById('productList').innerHTML = '<tr><td colspan="7" style="color:var(--silver)">Koi product nahi hai abhi. Upar se add karein.</td></tr>';
+    return;
+  }
+  document.getElementById('productList').innerHTML = data.map(p => `
+    <tr>
+      <td><img src="${p.image_url}" alt=""></td>
+      <td>${p.name}</td>
+      <td>${p.category}</td>
+      <td>Rs. ${Number(p.price).toLocaleString('en-PK')}</td>
+      <td>${p.section}</td>
+      <td>${p.badge ? `<span class="badge-tag">${p.badge}</span>` : '—'}</td>
+      <td class="actions">
+        <button class="btn btn-secondary" style="padding:8px 16px;font-size:.68rem" onclick='editProduct(${JSON.stringify(p).replace(/'/g,"&apos;")})'>Edit</button>
+        <button class="btn-danger" onclick="deleteProduct('${p.id}', '${p.name.replace(/'/g,"\\'")}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// ADMIN LOGIN — simple password lock
+// Change this password to whatever you like.
+// ═══════════════════════════════════════════════════════
+const ADMIN_PASSWORD = 'hoorstudio2026';
+
+function tryLogin(){
+  const entered = document.getElementById('loginPassword').value;
+  if(entered === ADMIN_PASSWORD){
+    sessionStorage.setItem('hoorAdminAuth', 'true');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminWrap').style.display = 'block';
+    loadProducts();
+  } else {
+    const err = document.getElementById('loginError');
+    err.textContent = 'Ghalat password. Dobara koshish karein.';
+    err.style.display = 'block';
+  }
+}
+
+// Stay logged in for this browser tab session
+if(sessionStorage.getItem('hoorAdminAuth') === 'true'){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminWrap').style.display = 'block';
+  loadProducts();
+}
+</script>
+</body>
+</html>
